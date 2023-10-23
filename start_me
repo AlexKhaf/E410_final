@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Creating network for containers - name: E410..."
+docker network create E410
+echo "Network E410 created."
+echo "Preparing Postgresql container..."
+sleep 5s
+docker run --name postgres_db --network E410 -d -v ./pgdata:/var/lib/postgresql/data alexkhafisov/e410_postgres:pg
+echo "Postgresql container created."
+echo "Preparing Django,Gunicorn,Nginx container..."
+sleep 5s
+docker run --name main_container --network E410 --link postgres_db:db -d -p 80:80 -v ./E410pj_data:/usr/src/app/run --env-file ./.env.dev alexkhafisov/e410_django:django
+echo "Django,Gunicorn,Nginx container created."
